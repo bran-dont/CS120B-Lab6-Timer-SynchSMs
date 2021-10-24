@@ -1,7 +1,7 @@
 /*	Author: Brandon Tran
  *  Partner(s) Name: 
  *	Lab Section: 22
- *	Assignment: Lab #6  Exercise #3
+ *	Assignment: Lab #6  Exercise #2
  *	Exercise Description: Create a synchSM to blink three LEDs connected to PB0, 
  *		PB1, and PB2 in sequence, 1 second each. Implement that synchSM in C using the 
  *		method defined in class. In addition to demoing your program, you will need to show 
@@ -99,16 +99,13 @@ int main(void) {
     DDRA = 0x00; PORTA = 0xFF;
 	DDRB = 0xFF; PORTB = 0x00;
     /* Insert your solution below */
-    TimerSet(100);
+    TimerSet(300);
     TimerOn();
     i = 0;
     output = 0;
     state = Seq_R;
     while (1) {
-		output = (i == 0 ? 0x01 : output);
-		output = (i == 1 ? 0x02 : output);
-		output = (i == 2 ? 0x04 : output);
-		PORTB = output;
+		if(TimerFlag == 1) { Tick(); }
     }
     return 1;
 }
