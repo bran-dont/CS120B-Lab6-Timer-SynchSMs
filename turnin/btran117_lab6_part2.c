@@ -2,36 +2,31 @@
  *  Partner(s) Name: 
  *	Lab Section: 22
  *	Assignment: Lab #6  Exercise #2
- *	Exercise Description: Create a synchSM to blink three LEDs connected to PB0, 
- *		PB1, and PB2 in sequence, 1 second each. Implement that synchSM in C using the 
- *		method defined in class. In addition to demoing your program, you will need to show 
- *		that your code adheres entirely to the method with no variations.
+ *	Exercise Description: Create a simple light game that requires pressing a button on PA0 while 
+ *		the middle of three LEDs on PB0, PB1, and PB2 is lit. The LEDs light for 300 ms each in 
+ *		sequence. When the button is pressed, the currently lit LED stays lit. Pressing the button
+ *		again restarts the game. 
  *	
  *		To clarify and match the video, the lights should turn on in the following sequence:
  *	
- *		PB0,PB1,PB2,PB0,PB1,PB2,PB0,PB1,PB2…
+ *		PB0,PB1,PB2,PB1,PB0,PB1,PB2,PB1,PB0…
  *	
- *		Video Demonstration: http://youtu.be/ZS1Op26WiBM
+ *		Video Demonstration: http://youtu.be/inmzsXz_HG0
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
 #include <avr/io.h>
-#include <timer.h>
+#include "timer.h"
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
 #endif
 
-volatile unsigned char TimerFlag = 0; // TimerISR() sets this to 1. C programmer should clear to 0.
 unsigned char i, output, input, direction; // direction: 0 = forward, 1 = backward
 enum States { Seq_P, Seq_R, Stay_P, Stay_R } state;
 
-void TimerISR() {
-	TimerFlag = 1;
-}
-
 void Tick() {
-	input = PORTA & 0x01;
+	input = ~PINA & 0x01;
 	
 	switch (state) {
 		case Seq_P:
@@ -49,7 +44,7 @@ void Tick() {
 				direction = 1;
 				i--;
 			}
-			state = (input == 1 ? Seq_P : Seq_R);
+			state = (input == 0x01 ? Seq_P : Seq_R);
 		break;
 		
 		case Seq_R:
@@ -88,9 +83,9 @@ void Tick() {
 			}
 			else { state = Stay_R; }
 		break;
-		
-		PORTB = output;
 	}
+	
+	PORTB = output;
 }
 
 
@@ -105,7 +100,7 @@ int main(void) {
     output = 0;
     state = Seq_R;
     while (1) {
-		if(TimerFlag == 1) { Tick(); }
+		if(TimerFlag == 1) { Tick(); TimerFlag = 0; }
     }
     return 1;
 }

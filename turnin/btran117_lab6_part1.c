@@ -14,19 +14,13 @@
  *	code, is my own original work.
  */
 #include <avr/io.h>
-#include <timer.h>
+#include "timer.h"
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
 #endif
 
-volatile unsigned char TimerFlag = 0; // TimerISR() sets this to 1. C programmer should clear to 0.
 unsigned char i;
 unsigned char output;
-
-void TimerISR() {
-	TimerFlag = 1;
-}
-
 
 int main(void) {
     /* Insert DDR and PORT initializations */
@@ -41,6 +35,8 @@ int main(void) {
 			output = (i == 0 ? 0x01 : output);
 			output = (i == 1 ? 0x02 : output);
 			output = (i == 2 ? 0x04 : output);
+			i = (i + 1) % 3;
+			TimerFlag = 0;
 		}
 		PORTB = output;
     }
